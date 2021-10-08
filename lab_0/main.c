@@ -9,8 +9,7 @@
 #include <time.h>
 #include <stddef.h>
 
-void get_info(struct dirent* ent, char* path)
-{
+void get_info(struct dirent *ent, char *path) {
     char buffer_path[PATH_MAX];
     buffer_path[0] = '\0';
     strcat(buffer_path, path);
@@ -34,19 +33,19 @@ void get_info(struct dirent* ent, char* path)
 
     printf(" %2lu", stats.st_nlink);
 
-    struct passwd* user = getpwuid(stats.st_uid);
+    struct passwd *user = getpwuid(stats.st_uid);
     printf(" %s", (user != 0) ? user->pw_name : " ");
 
-    struct group* group = getgrgid(stats.st_gid);
+    struct group *group = getgrgid(stats.st_gid);
     printf(" %s", (group != 0) ? group->gr_name : " ");
 
     printf(" %5ld", stats.st_size);
 
-    struct tm* time_ptr;
+    struct tm *time_ptr;
     time_t time = stats.st_ctime;
     time_ptr = localtime(&time);
 
-    char* months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    char *months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     printf(" %s", months[time_ptr->tm_mon]);
     printf(" %02d", time_ptr->tm_mday);
     printf(" %02d:%02d ", time_ptr->tm_hour, time_ptr->tm_min);
@@ -54,21 +53,21 @@ void get_info(struct dirent* ent, char* path)
     printf("%s\n", ent->d_name);
 }
 
-char* detect_path(int argc, char** argv) {
+char *detect_path(int argc, char **argv) {
     switch (argc) {
         case 1:
-            return ((strstr(argv[0], "./ls") != NULL) ? "./" : "ERROR");
+            return  "./";
         case 2:
             return ((strstr(argv[1], "-l") == NULL) ? argv[1] : "./");
         case 3:
             return ((strstr(argv[1], "-l") == NULL) ? argv[1] : argv[2]);
         default:
-            return  "ERROR";
+            return "ERROR";
     }
 }
 
-char* get_path(int argc, char** argv){
-    char* current_path = detect_path(argc, argv);
+char *get_path(int argc, char **argv) {
+    char *current_path = detect_path(argc, argv);
     if (strstr(current_path, "ERROR")) {
         printf("%s\n", "Невозможно получить доступ. Нет такого файла или каталога");
         exit(1);
@@ -76,45 +75,43 @@ char* get_path(int argc, char** argv){
     return current_path;
 }
 
-void print_list(DIR* dir, struct dirent* ent, char* current_path) {
-    while ((ent=readdir(dir)) != NULL) {
+void print_list(DIR *dir, struct dirent *ent, char *current_path) {
+    while ((ent = readdir(dir)) != NULL) {
         if (ent->d_name[0] == '.')
             continue;
         printf("%s\n", ent->d_name);
     }
 }
 
-void print_list_long(DIR* dir, struct dirent* ent, char* current_path) {
+void print_list_long(DIR *dir, struct dirent *ent, char *current_path) {
     struct stat s;
     memset(&s, 0, sizeof(struct stat));
     stat(current_path, &s);
     printf("total %ld \n", s.st_blocks);
 
-    while ((ent=readdir(dir)) != NULL) {
+    while ((ent = readdir(dir)) != NULL) {
         if (ent->d_name[0] == '.')
             continue;
-        get_info(ent,current_path);
+        get_info(ent, current_path);
     }
 }
 
-int main(int argc, char** argv) {
-    char* current_path = get_path(argc, argv);
-    DIR* dir = opendir(current_path);
-    struct dirent* ent = NULL;
+int main(int argc, char **argv) {
+    char *current_path = get_path(argc, argv);
+    DIR *dir = opendir(current_path);
+    struct dirent *ent = NULL;
 
     int c;
     int counter = 1;
-    while (counter < argc)
-    {
-        if ((c = getopt(argc, argv, "ll:")) != -1)
-        {
+    while (counter < argc) {
+        if ((c = getopt(argc, argv, "l")) != -1) {
             switch (c) {
                 case 'l':
                     print_list_long(dir, ent, current_path);
                     closedir(dir);
                     exit(0);
                 case '?':
-                case ':':
+                    closedir(dir);
                     exit(1);
                 default:
                     break;
