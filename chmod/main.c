@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 
@@ -25,6 +26,7 @@ int main(int argc, char* argv[]) {
     }
     else {
         printf("%s\n", "ERROR!");
+        exit(1);
     }
 
     bool user = false;
@@ -53,12 +55,15 @@ int main(int argc, char* argv[]) {
             case 'e': execute = true; break;
             default:
                 printf("%s\n", "ERROR!");
+                exit(1);
         }
     }
 
     struct stat stats;
-    if (stat(path, &stats) < 0)
+    if (stat(path, &stats) < 0) {
         printf("%s\n", strerror(errno));
+        exit(1);
+    }
 
     mode_t mode = stats.st_mode;
 
@@ -81,25 +86,24 @@ int main(int argc, char* argv[]) {
     }
     else {
         if (user) {
-            if (read) mode -= mode & S_IRUSR;
-            if (write) mode -= mode & S_IWUSR;
-            if (execute) mode -= mode & S_IXUSR;
+            if (read) mode ^= S_IRUSR;
+            if (write) mode ^= S_IWUSR;
+            if (execute) mode ^= S_IXUSR;
         }
         else if (group) {
-            if (read) mode -= mode & S_IRGRP;
-            if (write) mode -= mode & S_IWGRP;
-            if (execute) mode -= mode & S_IXGRP;
+            if (read) mode ^= S_IRGRP;
+            if (write) mode ^= S_IWGRP;
+            if (execute) mode ^= S_IXGRP;
         }
         else if (other) {
-            if (read) mode -= mode & S_IROTH;
-            if (write) mode -= mode & S_IWOTH;
-            if (execute) mode -= mode & S_IXOTH;
+            if (read) mode ^= S_IROTH;
+            if (write) mode ^= S_IWOTH;
+            if (execute) mode ^= S_IXOTH;
         }
     }
 
     if (chmod(path, mode) < 0) {
         printf("%s\n", strerror(errno));
+        exit(1);
     }
-
-    return 0;
 }
