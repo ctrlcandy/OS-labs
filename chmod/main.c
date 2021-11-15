@@ -7,9 +7,9 @@
 #include <string.h>
 
 void print_help() {
-    printf("%s\n", "Первым идет флаг группы атрибутов: user/group/other");
-    printf("%s\n", "Второй флаг - добавление и удаление: add/remove");
-    printf("%s\n", "Далее идет от одного до трех флагов атрибутов: read/write/execute");
+    printf("%s\n", "Первым идет флаг группы атрибутов: user/group/other (-u/-g/-o)");
+    printf("%s\n", "Второй флаг - добавление и удаление: add/remove (-a/-r)");
+    printf("%s\n", "Далее идет от одного до трех флагов атрибутов: read/write/execute (-r/-w/-x)");
     printf("%s\n", "Примеры:");
     printf("%s\n", "./chmod -uaw filepath");
     printf("%s\n", "./chmod -grr filepath");
@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     }
     else if (argc == 2 && argv[1][1] == 'h') {
         print_help();
+        exit(0);
     }
     else {
         printf("%s\n", "ERROR!");
@@ -41,7 +42,7 @@ int main(int argc, char* argv[]) {
     bool execute = false;
 
     int c;
-    while ((c = getopt(argc, argv, "hugoadrwe")) != -1) {
+    while ((c = getopt(argc, argv, "hugoadrwx")) != -1) {
         switch(c) {
             case 'u': user = true; break;
             case 'g': group = true; break;
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
                 else read = true;
                 break;
             case 'w': write = true; break;
-            case 'e': execute = true; break;
+            case 'x': execute = true; break;
             default:
                 printf("%s\n", "ERROR!");
                 exit(1);
@@ -86,19 +87,19 @@ int main(int argc, char* argv[]) {
     }
     else {
         if (user) {
-            if (read) mode ^= S_IRUSR;
-            if (write) mode ^= S_IWUSR;
-            if (execute) mode ^= S_IXUSR;
+            if (read) mode -= mode & S_IRUSR;
+            if (write) mode -= mode & S_IWUSR;
+            if (execute) mode -= mode & S_IXUSR;
         }
         else if (group) {
-            if (read) mode ^= S_IRGRP;
-            if (write) mode ^= S_IWGRP;
-            if (execute) mode ^= S_IXGRP;
+            if (read) mode -= mode & S_IRGRP;
+            if (write) mode -= mode & S_IWGRP;
+            if (execute) mode -= mode & S_IXGRP;
         }
         else if (other) {
-            if (read) mode ^= S_IROTH;
-            if (write) mode ^= S_IWOTH;
-            if (execute) mode ^= S_IXOTH;
+            if (read) mode -= mode & S_IROTH;
+            if (write) mode -= mode & S_IWOTH;
+            if (execute) mode -= mode & S_IXOTH;
         }
     }
 
