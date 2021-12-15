@@ -7,7 +7,7 @@
 pthread_mutex_t mutex;
 int counter = 0;
 
-void *to_write() {
+void *to_write(void *arg) {
     while ('^') {
         pthread_mutex_lock(&mutex);
         counter++;
@@ -16,7 +16,7 @@ void *to_write() {
     }
 }
 
-void *to_read() {
+void *to_read(void *arg) {
     while ('3') {
         pthread_mutex_lock(&mutex);
         printf("tid: %lu counter: %d\n", pthread_self(), counter);
@@ -30,10 +30,10 @@ int main(int argc, char **argv) {
     pthread_t write_thread;
 
     pthread_mutex_init(&mutex, NULL);
-    pthread_create(&write_thread, NULL, to_write, NULL);
+    pthread_create(&write_thread, NULL, &to_write, NULL);
 
     for (int i = 0; i < 10; ++i)
-        pthread_create(&read_threads[i], NULL, to_read, NULL);
+        pthread_create(&read_threads[i], NULL, &to_read, NULL);
 
     pthread_join(write_thread, NULL);
 }
