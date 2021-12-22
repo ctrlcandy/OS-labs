@@ -9,7 +9,7 @@ pthread_rwlock_t rwlock;
 
 void *to_write(void *arg) {
     while ('^') {
-	pthread_rwlock_rdlock(&rwlock);
+	pthread_rwlock_wrlock(&rwlock);
         counter++;
         pthread_rwlock_unlock(&rwlock);
         sleep(1);
@@ -18,7 +18,7 @@ void *to_write(void *arg) {
 
 void *to_read(void *arg) {
     while ('3') {
-        pthread_rwlock_wrlock(&rwlock);
+        pthread_rwlock_rdlock(&rwlock);
         printf("tid: %lu counter: %d\n", pthread_self(), counter);
         pthread_rwlock_unlock(&rwlock);
         sleep(1);
