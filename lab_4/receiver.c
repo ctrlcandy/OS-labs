@@ -28,7 +28,7 @@ int main() {
     }
 
     int shid = shmget(key, sizeof(time_t) + sizeof(int), 0666);
-    if (shid == 0) {
+    if (shid < 0) {
         printf("Creation error in receiver process: %s\n", strerror(errno));
         exit(-1);
     }
@@ -62,6 +62,5 @@ int main() {
 
     semop(semid, &sem_open, 1);
     shmdt(shptr);
-
     return 0;
 }
