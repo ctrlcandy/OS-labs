@@ -61,6 +61,10 @@ int main() {
         memcpy(shptr, &to_send, sizeof(data));
         semop(semid, &sem_open, 1);
     }
+    semctl(semid, 0, IPC_RMID);
+    shmdt(shptr);
+    shmctl(shid, IPC_RMID, NULL);
 
+    return 0;
 }
 

@@ -51,5 +51,9 @@ int main() {
         memcpy(shptr, &to_send, sizeof(data));
     }
 
+    shmdt(shptr);
+    shmctl(shid, IPC_RMID, NULL);
+    
+    return 0;
 }
 

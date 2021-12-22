@@ -40,4 +40,8 @@ int main(int argc, char **argv) {
         pthread_create(&read_threads[i], NULL, &to_read, NULL);
 
     pthread_join(write_thread, NULL);
+    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mutex);
+	
+    return 0;
 }
