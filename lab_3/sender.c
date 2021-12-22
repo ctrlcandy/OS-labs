@@ -24,8 +24,8 @@ int main() {
         exit(-1);
     }
 
-    int shid = shmget(key, 32, 0666);
-    if (shid == 0) {
+    int shid = shmget(key, sizeof(time_t) + sizeof(int), IPC_CREAT | 0666);
+    if (shid < 0) {
         printf("Creation error in sender process: %s\n", strerror(errno));
         exit(-1);
     }
