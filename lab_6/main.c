@@ -12,14 +12,15 @@ void *to_write(void *arg) {
     while ('^') {
         pthread_mutex_lock(&mutex);
         counter++;
+        pthread_cond_broadcast(&cond);
         pthread_mutex_unlock(&mutex);
-        pthread_cond_signal(&cond);
         sleep(1);
     }
 }
 
 void *to_read(void *arg) {
     while ('3') {
+        pthread_mutex_lock(&mutex);
         pthread_cond_wait(&cond, &mutex);
         printf("tid: %lu counter: %d\n", pthread_self(), counter);
         pthread_mutex_unlock(&mutex);
